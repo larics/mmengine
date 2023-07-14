@@ -10,7 +10,7 @@ import torch
 import torch.multiprocessing as mp
 from torch import Tensor
 from torch import distributed as torch_dist
-from torch.distributed import ProcessGroup
+#from torch.distributed import ProcessGroup
 from mmengine.device import is_mlu_available, is_npu_available
 
 from collections.abc import Iterable, Mapping
@@ -23,7 +23,7 @@ def is_distributed() -> bool:
     return torch_dist.is_available() and torch_dist.is_initialized()
 
 
-def get_local_group() -> Optional[ProcessGroup]:
+def get_local_group() -> None:
     """Return local process group."""
     if not is_distributed():
         return None
@@ -35,10 +35,10 @@ def get_local_group() -> Optional[ProcessGroup]:
     return _LOCAL_PROCESS_GROUP
 
 
-def get_default_group() -> Optional[ProcessGroup]:
+def get_default_group() -> None:
     """Return default process group."""
 
-    return torch_dist.distributed_c10d._get_default_group()
+    return None
 
 
 def infer_launcher():
@@ -235,7 +235,7 @@ def init_local_group(node_rank: int, num_gpus_per_node: int):
     _LOCAL_PROCESS_GROUP = torch_dist.new_group(ranks)
 
 
-def get_backend(group: Optional[ProcessGroup] = None) -> Optional[str]:
+def get_backend(group = None) -> Optional[str]:
     """Return the backend of the given process group.
 
     Note:
@@ -262,7 +262,7 @@ def get_backend(group: Optional[ProcessGroup] = None) -> Optional[str]:
         return None
 
 
-def get_world_size(group: Optional[ProcessGroup] = None) -> int:
+def get_world_size(group = None) -> int:
     """Return the number of the given process group.
 
     Note:
@@ -287,7 +287,7 @@ def get_world_size(group: Optional[ProcessGroup] = None) -> int:
         return 1
 
 
-def get_rank(group: Optional[ProcessGroup] = None) -> int:
+def get_rank(group = None) -> int:
     """Return the rank of the given process group.
 
     Rank is a unique identifier assigned to each process within a distributed
@@ -336,7 +336,7 @@ def get_local_size() -> int:
 def get_local_rank() -> int:
     """Return the rank of current process in the current node.
 
-    Returns:
+    Returns
         int: Return the rank of current process in the current node if in
         distributed environment, otherwise 0
     """
@@ -350,7 +350,7 @@ def get_local_rank() -> int:
     return torch_dist.get_rank(_LOCAL_PROCESS_GROUP)
 
 
-def get_dist_info(group: Optional[ProcessGroup] = None) -> Tuple[int, int]:
+def get_dist_info(group = None) -> Tuple[int, int]:
     """Get distributed information of the given process group.
 
     Note:
@@ -370,7 +370,7 @@ def get_dist_info(group: Optional[ProcessGroup] = None) -> Tuple[int, int]:
     return rank, world_size
 
 
-def is_main_process(group: Optional[ProcessGroup] = None) -> bool:
+def is_main_process(group= None) -> bool:
     """Whether the current rank of the given process group is equal to 0.
 
     Args:
@@ -402,7 +402,7 @@ def master_only(func: Callable) -> Callable:
     return wrapper
 
 
-def barrier(group: Optional[ProcessGroup] = None) -> None:
+def barrier(group = None) -> None:
     """Synchronize all processes from the given process group.
 
     This collective blocks processes until the whole group enters this
@@ -420,7 +420,7 @@ def barrier(group: Optional[ProcessGroup] = None) -> None:
         # passing in None for group argument
         if group is None:
             group = get_default_group()
-        torch_dist.barrier(group)
+        #torch_dist.barrier(group)
 
 
 def get_data_device(data: Union[Tensor, Mapping, Iterable]) -> torch.device:
@@ -489,7 +489,7 @@ def get_data_device(data: Union[Tensor, Mapping, Iterable]) -> torch.device:
                         f'but got {data}')
 
 
-def get_comm_device(group: Optional[ProcessGroup] = None) -> torch.device:
+def get_comm_device(group = None) -> torch.device:
     """Return the device for communication among groups.
 
     Args:

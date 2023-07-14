@@ -12,7 +12,7 @@ from torch import Tensor
 from torch import distributed as torch_dist
 from torch._utils import (_flatten_dense_tensors, _take_tensors,
                           _unflatten_dense_tensors)
-from torch.distributed import ProcessGroup
+#from torch.distributed import ProcessGroup
 
 import mmengine
 from .utils import (get_world_size, get_rank, get_backend, get_dist_info,
@@ -23,27 +23,27 @@ from mmengine.utils.dl_utils import TORCH_VERSION
 from mmengine.device import is_npu_available
 
 
-def _get_reduce_op(name: str) -> torch_dist.ReduceOp:
-    op_mappings = {
-        'sum': torch_dist.ReduceOp.SUM,
-        'product': torch_dist.ReduceOp.PRODUCT,
-        'min': torch_dist.ReduceOp.MIN,
-        'max': torch_dist.ReduceOp.MAX,
-        'band': torch_dist.ReduceOp.BAND,
-        'bor': torch_dist.ReduceOp.BOR,
-        'bxor': torch_dist.ReduceOp.BXOR,
-    }
+#def _get_reduce_op(name: str) -> torch_dist.ReduceOp:
+#    op_mappings = {
+#        'sum': torch_dist.ReduceOp.SUM,
+#        'product': torch_dist.ReduceOp.PRODUCT,
+#        'min': torch_dist.ReduceOp.MIN,
+#        'max': torch_dist.ReduceOp.MAX,
+#        'band': torch_dist.ReduceOp.BAND,
+#        'bor': torch_dist.ReduceOp.BOR,
+#        'bxor': torch_dist.ReduceOp.BXOR,
+#    }
 
-    if name.lower() not in op_mappings:
-        raise ValueError(
-            f'reduce op should be one of {op_mappings.keys()}, bug got {name}')
+#    if name.lower() not in op_mappings:
+#        raise ValueError(
+#            f'reduce op should be one of {op_mappings.keys()}, bug got {name}')
 
-    return op_mappings[name.lower()]
+#    return op_mappings[name.lower()]
 
 
 def all_reduce(data: Tensor,
                op: str = 'sum',
-               group: Optional[ProcessGroup] = None) -> None:
+               group = None) -> None:
     """Reduces the tensor data across all machines in such a way that all get
     the final result.
 
@@ -107,7 +107,7 @@ def all_reduce(data: Tensor,
 
 
 def all_gather(data: Tensor,
-               group: Optional[ProcessGroup] = None) -> List[Tensor]:
+               group = None) -> List[Tensor]:
     """Gather data from the whole group in a list.
 
     Note:
@@ -179,7 +179,7 @@ def all_gather(data: Tensor,
 
 def gather(data: Tensor,
            dst: int = 0,
-           group: Optional[ProcessGroup] = None) -> List[Optional[Tensor]]:
+           group = None) -> List[Optional[Tensor]]:
     """Gather data from the whole group to ``dst`` process.
 
     Note:
@@ -261,7 +261,7 @@ def gather(data: Tensor,
 
 def broadcast(data: Tensor,
               src: int = 0,
-              group: Optional[ProcessGroup] = None) -> None:
+              group = None) -> None:
     """Broadcast the data from ``src`` process to the whole group.
 
     ``data`` must have the same number of elements in all processes
@@ -315,7 +315,7 @@ def broadcast(data: Tensor,
             cast_data_device(data_on_device, input_device, data)
 
 
-def sync_random_seed(group: Optional[ProcessGroup] = None) -> int:
+def sync_random_seed(group = None) -> int:
     """Synchronize a random seed to all processes.
 
     In distributed sampling, different ranks should sample non-overlapped
@@ -385,7 +385,7 @@ def _tensor_to_object(tensor: Tensor, tensor_size: int) -> Any:
 
 def _broadcast_object_list(object_list: List[Any],
                            src: int = 0,
-                           group: Optional[ProcessGroup] = None) -> None:
+                           group = None) -> None:
     """Broadcast picklable objects in ``object_list`` to the whole group.
 
     Similar to :func:`broadcast`, but Python objects can be passed in. Note
@@ -457,7 +457,7 @@ def _broadcast_object_list(object_list: List[Any],
 
 def broadcast_object_list(data: List[Any],
                           src: int = 0,
-                          group: Optional[ProcessGroup] = None) -> None:
+                          group = None) -> None:
     """Broadcasts picklable objects in ``object_list`` to the whole group.
     Similar to :func:`broadcast`, but Python objects can be passed in. Note
     that all objects in ``object_list`` must be picklable in order to be
@@ -523,7 +523,7 @@ def broadcast_object_list(data: List[Any],
 
 def all_reduce_dict(data: Dict[str, Tensor],
                     op: str = 'sum',
-                    group: Optional[ProcessGroup] = None) -> None:
+                    group = None) -> None:
     """Reduces the dict across all machines in such a way that all get the
     final result.
 
@@ -596,7 +596,7 @@ def all_reduce_dict(data: Dict[str, Tensor],
 
 def _all_gather_object(object_list: List[Any],
                        obj: Any,
-                       group: Optional[ProcessGroup] = None) -> None:
+                       group = None) -> None:
     """Gather picklable objects from the whole group into a list.
 
     Similar to :func:`all_gather`, but Python objects can be passed in.
@@ -662,7 +662,7 @@ def _all_gather_object(object_list: List[Any],
 
 
 def all_gather_object(data: Any,
-                      group: Optional[ProcessGroup] = None) -> List[Any]:
+                      group = None) -> List[Any]:
     """Gather picklable objects from the whole group into a list. Similar to
     :func:`all_gather`, but Python objects can be passed in. Note that the
     object must be picklable in order to be gathered.
@@ -750,7 +750,7 @@ def _validate_output_list_for_rank(my_rank: int, dst: int,
 def _gather_object(obj: Any,
                    object_gather_list=None,
                    dst: int = 0,
-                   group: Optional[ProcessGroup] = None) -> None:
+                   group= None) -> None:
     """Gathers picklable objects from the whole group in a single process.
 
     Similar to :func:`gather`, but Python objects can be passed in. Note that
@@ -824,7 +824,7 @@ def _gather_object(obj: Any,
 
 def gather_object(data: Any,
                   dst: int = 0,
-                  group: Optional[ProcessGroup] = None) -> Optional[List[Any]]:
+                  group = None) -> Optional[List[Any]]:
     """Gathers picklable objects from the whole group in a single process.
     Similar to :func:`gather`, but Python objects can be passed in. Note that
     the object must be picklable in order to be gathered.
@@ -1071,7 +1071,7 @@ def collect_results_gpu(result_part: list, size: int) -> Optional[list]:
 def _all_reduce_coalesced(tensors: List[torch.Tensor],
                           bucket_size_mb: int = -1,
                           op: str = 'sum',
-                          group: Optional[ProcessGroup] = None) -> None:
+                          group = None) -> None:
     """All-reduce a sequence of tensors as a whole.
 
     Args:
@@ -1109,7 +1109,7 @@ def all_reduce_params(params: Union[List, Generator[torch.Tensor, None, None]],
                       coalesce: bool = True,
                       bucket_size_mb: int = -1,
                       op: str = 'sum',
-                      group: Optional[ProcessGroup] = None) -> None:
+                      group = None) -> None:
     """All-reduce parameters.
 
     Args:
